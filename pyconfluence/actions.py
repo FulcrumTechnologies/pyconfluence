@@ -226,13 +226,14 @@ def get_page_children(id):
     return data
 
 
-def create_page(name, parent_id, space, content):
+def create_page(name, parent_id, space, content, representation='storage'):
     """Create a page in Confluence.
     Parameters:
     - name: name of the Confluence page to create.
     - parent_id: ID of the intended parent of the page.
     - space: key of the space where the page will be created.
-    - content: XHTML content to be written to the page.
+    - content: Content to be written to the page.
+    - representation: Confluence markup type
     Notes: the page id can be obtained by getting ["id"] from the returned JSON.
     """
     data = {}
@@ -240,17 +241,19 @@ def create_page(name, parent_id, space, content):
     data["title"] = name
     data["ancestors"] = [{"id": str(parent_id)}]
     data["space"] = {"key": space}
-    data["body"] = {"storage": {"value": content, "representation": "storage"}}
+    data["body"] = {"storage": {"value": content,
+                                "representation": representation}}
     return _api.rest("/", "POST", _json.dumps(data))
 
 
-def edit_page(id, name, space, content):
+def edit_page(id, name, space, content, representation='storage'):
     """Update a page in Confluence.
     Parameters:
     - id: ID of the page you wish to edit.
     - name: name you would like to give to the page (usually the same name).
     - space: space where the page lives.
-    - content: XHTML content to be written to the page.
+    - content: Content to be written to the page.
+    - representation: Confluence markup type
     Notes: it is required to try an initial update to find the page version.
     """
     data = {}
@@ -258,7 +261,8 @@ def edit_page(id, name, space, content):
     data["type"] = "page"
     data["title"] = name
     data["space"] = {"key": space}
-    data["body"] = {"storage": {"value": content, "representation": "storage"}}
+    data["body"] = {"storage": {"value": content,
+                                "representation": representation}}
     data["version"] = {"number": 1}
 
     response = _api.rest("/" + str(id), "PUT", _json.dumps(data))
