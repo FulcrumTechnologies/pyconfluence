@@ -22,7 +22,7 @@ def load_variables():
     """Load variables from environment variables."""
     if (not os.environ.get("PYCONFLUENCE_TOKEN") or
             not os.environ.get("PYCONFLUENCE_USER") or
-            not os.environ.get("PYCONFLUENCE_ORG")):
+            not os.environ.get("BASE_URL")):
         print ("One or more pyconfluence environment variables are not set. "
                "See README for directions on how to resolve this.")
         sys.exit("Error")
@@ -32,8 +32,7 @@ def load_variables():
     global base_url
     token = os.environ["PYCONFLUENCE_TOKEN"]
     user = os.environ["PYCONFLUENCE_USER"]
-    base_url = ("https://" + os.environ["PYCONFLUENCE_ORG"] + ".atlassian"
-                ".net/wiki/rest/api/content")
+    base_url = (os.environ["BASE_URL"] + "/rest/api/content")
 
 
 def rest(url, req="GET", data=None):
