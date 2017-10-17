@@ -32,7 +32,7 @@ def load_variables():
     global base_url
     token = os.environ["PYCONFLUENCE_TOKEN"]
     user = os.environ["PYCONFLUENCE_USER"]
-    base_url = (os.environ["BASE_URL"] + "/wiki/rest/api/content")
+    base_url = (os.environ["BASE_URL"] + "/rest/api/content")
 
 
 def rest(url, req="GET", data=None):
