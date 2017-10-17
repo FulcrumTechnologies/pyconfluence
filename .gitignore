@@ -4,3 +4,4 @@ tests.py
 *.egg-info/
 dist/
 pyconfluence/__pycache__/
+.idea/
