@@ -69,7 +69,7 @@ def rest(url, req="GET", data=None):
 
 def _rest(url, req, data=None):
     """Send a rest rest request to the server."""
-    if url.upper().startswith("HTTPS"):
+    if url.upper().startswith("HTTPS") is False:
         print("Secure connection required: Please use HTTPS or https")
         return ""
 
