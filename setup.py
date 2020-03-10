@@ -10,4 +10,7 @@ setup(
     download_url='https://github.com/FulcrumIT/pyconfluence/tarball/1.1.3',
     keywords=['confluence'],
     classifiers=[],
+    install_requires=[
+        "requests"
+    ],
 )

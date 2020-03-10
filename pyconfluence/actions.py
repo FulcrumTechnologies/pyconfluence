@@ -135,7 +135,14 @@ def get_page_content(id):
     Parameters:
     - id: id of a Confluence page.
     """
-    data = _json.loads(_api.rest("/" + str(id) + "?expand=body.storage"))
+    raw = _api.rest("/" + str(id) + "?expand=body.storage")
+
+    try:
+        data = _json.loads(raw)
+    except:
+        print(u"Could not parse JSON response (get_page_content):\n{}".format(raw))
+        raise
+
     return data["body"]["storage"]["value"]
 
 
@@ -144,7 +151,15 @@ def get_page_name(id):
     Parameters:
     - id: id of a Confluence page.
     """
-    data = _json.loads(_api.rest("/" + str(id) + "?expand=body.storage"))
+
+    raw = _api.rest("/" + str(id) + "?expand=body.storage")
+
+    try:
+        data = _json.loads(raw)
+    except:
+        print(u"Could not parse JSON response (get_page_name):\n{}".format(raw))
+        raise
+
     return data["title"]
 
 
@@ -154,8 +169,15 @@ def get_page_id(name, space):
     - name: name of a Confluence page.
     - space: space the Confluence page is in.
     """
-    data = _json.loads(_api.rest("?title=" + name.replace(" ", "%20") + "&"
-                       "spaceKey=" + space + "&expand=history"))
+    raw = _api.rest("?title=" + name.replace(" ", "%20") + "&"
+                       "spaceKey=" + space + "&expand=history")
+
+    try:
+        data = _json.loads(raw)
+    except:
+        print(u"Could not parse JSON response (get_page_id):\n{}".format(raw))
+        raise
+
     try:
         return data["results"][0]["id"]
     except:
@@ -168,8 +190,15 @@ def page_exists(name, space):
     - name: name of a Confluence page.
     - space: space the Confluence page is in.
     """
-    data = _json.loads(_api.rest("?title=" + name.replace(" ", "%20") + "&"
-                       "spaceKey=" + space + "&expand=history"))
+    raw = _api.rest("?title=" + name.replace(" ", "%20") + "&"
+                       "spaceKey=" + space + "&expand=history")
+
+    try:
+        data = _json.loads(raw)
+    except:
+        print(u"Could not parse JSON response (page_exists):\n{}".format(raw))
+        raise
+
     return (data["size"] > 0)
 
 
@@ -262,7 +291,14 @@ def edit_page(id, name, space, content):
     data["version"] = {"number": 1}
 
     response = _api.rest("/" + str(id), "PUT", _json.dumps(data))
-    new_version = int(_json.loads(response)["message"].split()[-1]) + 1
+
+    try:
+        data = _json.loads(response)
+    except:
+        print(u"Could not parse JSON response (edit_page):\n{}".format(raw))
+        raise
+
+    new_version = int(data["message"].split()[-1]) + 1
     data["version"]["number"] = new_version
 
     return _api.rest("/" + str(id), "PUT", _json.dumps(data))
@@ -286,7 +322,13 @@ def delete_page_full(id):
     - Getting a 204 error is expected! It means the page can no longer be found.
     """
 
-    children = _json.loads(get_page_children(id))
+    raw = get_page_children(id)
+
+    try:
+        children = _json.loads(raw)
+    except:
+        print(u"Could not parse JSON response (delete_page_full):\n{}".format(raw))
+        raise
 
     for i in children["results"]:
         delete_page_full(i["id"])
