@@ -8,7 +8,7 @@ except ImportError:
     sys.stderr.write("You do not have the 'requests' module installed. "
                      "Please see http://docs.python-requests.org/en/latest/ "
                      "for more information.")
-    sys.exit("Error")
+    sys.exit(2)
 
 
 requests.packages.urllib3.disable_warnings()
@@ -20,20 +20,40 @@ base_url = ""
 
 def load_variables():
     """Load variables from environment variables."""
-    if (not os.environ.get("PYCONFLUENCE_TOKEN") or
-            not os.environ.get("PYCONFLUENCE_USER") or
-            not os.environ.get("PYCONFLUENCE_ORG")):
-        print ("One or more pyconfluence environment variables are not set. "
-               "See README for directions on how to resolve this.")
-        sys.exit("Error")
+
+    # Validate that we have credentials.
 
     global token
     global user
+
+    try:
+        token = os.environ["PYCONFLUENCE_TOKEN"]
+        user = os.environ["PYCONFLUENCE_USER"]
+    except KeyError as e:
+        print ("Environment variable are not set: {} . See README for "
+               "directions on how to resolve this.".format(str(e)))
+
+        sys.exit("Error")
+
+    # Determine which URL to hit.
+
+    root_url = os.environ.get('PYCONFLUENCE_URL')
+
+    if root_url is None:
+        try:
+            org = os.environ['PYCONFLUENCE_ORG']
+        except KeyError as e:
+            print ("Environment variable are not set: {} . See README for "
+                   "directions on how to resolve this.".format(str(e)))
+
+            sys.exit("Error")
+
+        root_url = ("https://" + org + ".atlassian"
+                   ".net/wiki")
+
     global base_url
-    token = os.environ["PYCONFLUENCE_TOKEN"]
-    user = os.environ["PYCONFLUENCE_USER"]
-    base_url = ("https://" + os.environ["PYCONFLUENCE_ORG"] + ".atlassian"
-                ".net/wiki/rest/api/content")
+
+    base_url = root_url + '/rest/api/content'
 
 
 def rest(url, req="GET", data=None):
