@@ -35,8 +35,7 @@ def load_variables():
     base_url = ("https://" + os.environ["PYCONFLUENCE_ORG"] + ".atlassian"
                 ".net/wiki/rest/api/content")
 
-
-def rest(url, req="GET", data=None):
+def rest(url, req="GET", data=None, files=None):
     """Main function to be called from this module.
 
     send a request using method 'req' and to the url. the _rest() function
@@ -44,27 +43,29 @@ def rest(url, req="GET", data=None):
     """
     load_variables()
 
-    return _rest(base_url + url, req, data)
+    return _rest(base_url + url, req, data, files)
 
 
-def _rest(url, req, data=None):
+def _rest(url, req, data=None, files=None):
     """Send a rest rest request to the server."""
-    if url.upper().startswith("HTTPS"):
+    if not url.upper().startswith("HTTPS"):
         print("Secure connection required: Please use HTTPS or https")
         return ""
+    if "../" in url:
+        url = url.replace("https://","")
+        url = "https://" + os.path.normpath(url)
 
     req = req.upper()
     if req != "GET" and req != "PUT" and req != "POST" and req != "DELETE":
         return ""
 
-    status, body = _api_action(url, req, data)
+    status, body = _api_action(url, req, data, files)
     if (int(status) >= 200 and int(status) <= 226):
         return body
     else:
         return body
 
-
-def _api_action(url, req, data=None):
+def _api_action(url, req, data=None, files=None):
     """Take action based on what kind of request is needed."""
     requisite_headers = {'Accept': 'application/json',
                          'Content-Type': 'application/json'}
@@ -76,8 +77,11 @@ def _api_action(url, req, data=None):
         response = requests.put(url, headers=requisite_headers, auth=auth,
                                 data=data)
     elif req == "POST":
+        if files != None:
+            requisite_headers.pop('Content-Type',None)
+            requisite_headers["X-Atlassian-Token"] = "no-check"
         response = requests.post(url, headers=requisite_headers, auth=auth,
-                                 data=data)
+                                 data=data, files=files)
     elif req == "DELETE":
         response = requests.delete(url, headers=requisite_headers, auth=auth)
 
