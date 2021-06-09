@@ -243,6 +243,21 @@ def create_page(name, parent_id, space, content):
     data["body"] = {"storage": {"value": content, "representation": "storage"}}
     return _api.rest("/", "POST", _json.dumps(data))
 
+def attach_file(name, id, content, comment=None):
+    """Create attachment in Confluence.
+    Parameters:
+    - name of the attachment
+    - id: ID of the page to attach to
+    - content: conent of the attachment as io.BytesIO
+    - comment: comment for attachment (optional)
+    """
+    data = {
+      "comment" : name if comment == None else comment
+    }
+    files = {
+      'file' : (name, content)
+    }
+    return _api.rest(f"/{id}/child/attachment", "POST", data, files)
 
 def edit_page(id, name, space, content):
     """Update a page in Confluence.
@@ -292,3 +307,14 @@ def delete_page_full(id):
         delete_page_full(i["id"])
 
     return delete_page(id)
+
+def markdown2xhtml(content):
+    """Convert Markdown to xhtml
+    Parameters:
+    - content: the contnent to covert
+    """
+    data = {
+      "value" : content,
+      "representation":"wiki",
+    }
+    return _api.rest("/../contentbody/convert/storage", "POST", _json.dumps(data))
